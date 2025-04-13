@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import '../index.css';
 import { basic_ethereum } from 'declarations/basic_ethereum';
+import { Actor, HttpAgent } from "@dfinity/agent";
+import { AuthClient } from "@dfinity/auth-client";
 
 const App = () => {
   const [account, setAccount] = useState('');
   const [balance, setBalance] = useState("");
+  const [isAuthed, setAuthed] = useState(false);
+  const [authClient, setAuthClient] = useState(null);
+  const [authCreated, setAuthCreated] = useState(false);
 
   const renderAccountBalance = async () => {
     // showLoading();
@@ -17,11 +22,51 @@ const App = () => {
     // hideLoading();
   };
 
+
+  const identityProvider = () => {
+    if (process.env.DFX_NETWORK === "local") {
+      return `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`;
+    } else if (process.env.DFX_NETWORK === "ic") {
+      return `https://${process.env.CANISTER_ID_INTERNET_IDENTITY}.ic0.app`;
+    } else {
+      return `https://${process.env.CANISTER_ID_INTERNET_IDENTITY}.dfinity.network`;
+    }
+  };
+
+  const onIdentityUpdate = async () => {
+    Actor.agentOf(basic_ethereum).replaceIdentity(authClient.getIdentity());
+    const isAuthenticated = await authClient.isAuthenticated();
+    setAuthed(isAuthenticated);
+  };
+
+  const createAuthClient = async () => {
+    const authClient = await AuthClient.create();
+    setAuthClient(authClient);
+    await onIdentityUpdate();
+  };
   
 
   useEffect(() => {
-    whoAmI();
-  }, []);
+    if (!authCreated) {
+      createAuthClient();
+      setAuthCreated(true);
+    }
+  }, [authCreated]);
+
+  const login = async () => {
+    await new Promise((resolve, reject) => authClient.login({
+      identityProvider: identityProvider(),
+      onSuccess: resolve,
+      onError: reject
+    }));
+    await onIdentityUpdate();
+  };
+  
+  
+  const logout = async () => {
+    await authClient.logout();
+    await onIdentityUpdate();
+  };
 
 
   /*const [currentDate, setCurrentDate] = useState(new Date());
@@ -229,6 +274,12 @@ const App = () => {
           placeholder="Enter account"
         />
         <button onClick={renderAccountBalance}>Check balance</button> 
+
+        {isAuthed ?
+          <button onClick={logout}>Logout</button>
+          : <button onClick={login}>Login</button>
+        }
+
         <h2>
           Balance: {balance}
         </h2>
