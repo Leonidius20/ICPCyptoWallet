@@ -15,7 +15,8 @@ const App = () => {
     // showLoading();
     try {
       const data = await basic_ethereum.get_balance([account]);
-      setBalance(data);
+      setBalance(data.toString() + ' WEI');
+      console.log("Fetched balance: ", data);
     } catch (error) {
       console.error('Error rendering day detail:', error);
     }
