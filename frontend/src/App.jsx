@@ -10,6 +10,7 @@ const App = () => {
   const [isAuthed, setAuthed] = useState(false);
   const [authClient, setAuthClient] = useState(null);
   const [authCreated, setAuthCreated] = useState(false);
+  const [myAddress, setMyAddress] = useState("");
 
   const renderAccountBalance = async () => {
     // showLoading();
@@ -61,6 +62,7 @@ const App = () => {
       onError: reject
     }));
     await onIdentityUpdate();
+    await getMyEthAddress();
   };
   
   
@@ -68,6 +70,11 @@ const App = () => {
     await authClient.logout();
     await onIdentityUpdate();
   };
+
+  const getMyEthAddress = async () => {
+    const address = await basic_ethereum.ethereum_address([]);
+    setMyAddress(address);
+  }
 
 
   /*const [currentDate, setCurrentDate] = useState(new Date());
@@ -267,6 +274,7 @@ const App = () => {
   return (
     <div id="root">
       <h1>Wallet</h1>
+      <p>Your address: {myAddress}</p>
       <div id="calendar">
         <input 
           type="text" 
