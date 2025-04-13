@@ -1,9 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import '../index.css';
-import { backend } from 'declarations/basic_ethereum';
+import { basic_ethereum } from 'declarations/basic_ethereum';
 
 const App = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [account, setAccount] = useState('');
+  const [balance, setBalance] = useState("");
+
+  const renderAccountBalance = async () => {
+    // showLoading();
+    try {
+      const data = await basic_ethereum.get_balance([account]);
+      setBalance(data);
+    } catch (error) {
+      console.error('Error rendering day detail:', error);
+    }
+    // hideLoading();
+  };
+
+  
+
+  useEffect(() => {
+    whoAmI();
+  }, []);
+
+
   /*const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [monthData, setMonthData] = useState([]);
@@ -200,13 +220,17 @@ const App = () => {
 
   return (
     <div id="root">
-      <h1>Daily Planner</h1>
+      <h1>Wallet</h1>
       <div id="calendar">
+        <input 
+          type="text" 
+          value={account}
+          onChange={(e) => setAccount(e.target.value)} 
+          placeholder="Enter account"
+        />
+        <button onClick={renderAccountBalance}>Check balance</button> 
         <h2>
-          {currentDate.toLocaleString('en-US', {
-            month: 'long',
-            year: 'numeric'
-          })}
+          Balance: {balance}
         </h2>
         
       </div>

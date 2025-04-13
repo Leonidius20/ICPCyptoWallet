@@ -28,6 +28,11 @@ pub fn init(maybe_init: Option<InitArg>) {
     }
 }
 
+#[ic_cdk::query]
+pub async fn whoami() -> Principal {
+    ic_cdk::caller()
+}
+
 #[update]
 pub async fn ethereum_address(owner: Option<Principal>) -> String {
     let caller = validate_caller_not_anonymous();
