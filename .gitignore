@@ -2,3 +2,4 @@
 node_modules
 target
 frontend/dist
+*:Zone.Identifier
