@@ -88,7 +88,7 @@ pub async fn transaction_count(owner: Option<Principal>, block: Option<BlockTag>
     let caller = validate_caller_not_anonymous();
     let owner = owner.unwrap_or(caller);
     let wallet = EthereumWallet::new(owner).await;
-    let rpc_services = read_state(|s| s.evm_rpc_services());
+    let rpc_services = read_state(|s| s.single_evm_rpc_service());
     let args = GetTransactionCountArgs {
         address: wallet.ethereum_address().to_string(),
         block: block.unwrap_or(BlockTag::Finalized),
